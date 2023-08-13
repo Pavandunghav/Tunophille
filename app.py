@@ -360,10 +360,10 @@ def recomm(emotion):
     recommendations = recommendations.sort_values(['sim'], axis=0, ascending=False)
 
     recommendations = recommendations.reset_index().drop('index', axis=1)
-    print(recommendations.head(10))
+    # print(recommendations.head(10))
     # print("No. of Song Recommendations: ", len(recommendations))
 
-    return render_template('recommend.html', recommendations=recommendations, emotion=emotion)
+    return render_template('recomm.html', zipped = zip(recommendations['name'], recommendations['id']), emotion=emotion)
 
 
 if __name__ == '__main__':
