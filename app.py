@@ -1,4 +1,12 @@
-#https://open.spotify.com/playlist/1sJlI1n2fVpa9YlhBLLSzz?si=93281880e1b94467
+
+# https://open.spotify.com/playlist/4YOfhHpjPB0tq29NPpDY3F?si=efe458af1a454841
+# https://open.spotify.com/playlist/4s1mi7HdvEPMY0Xv9re3dW?si=c4460569f63d4d3e
+# https://open.spotify.com/playlist/6oE7P6Q0vYsX2xIPMTDfqP?si=737a14baee2f407e
+
+# https://open.spotify.com/playlist/0i2S0eEdftTrmLKueMWUKX?si=7f10c20af4d04ea1
+# english: https://open.spotify.com/playlist/2oE3flopAvGvpv9QqkhV5Q
+# hindi: https://open.spotify.com/playlist/6A546Y17RhQ6MrjGIec68L?si=e0790235d2c04e63
+
 
 import pandas as pd
 import numpy as np
@@ -8,6 +16,7 @@ from datetime import datetime
 import cv2
 from deepface import DeepFace
 from flask import Flask, render_template, url_for, request, redirect
+import time
 
 app = Flask(__name__)
 
@@ -177,9 +186,14 @@ emotion = ''
 #emotion code
 @app.route('/emo')
 def emo():
+   # delay(delay=40)
+    # time.sleep(0.8)
+    # x = 0
     face_cascade = cv2.CascadeClassifier('haarcascade.xml')
-
     cap = cv2.VideoCapture(0)
+        # time.sleep(0.1)
+        # x += 1
+
     # while True:
     ret,frame = cap.read()
 
@@ -191,9 +205,26 @@ def emo():
 
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 3)
+    # emotion_list = sorted(result[0]['emotion'])
+    # emotion = emotion_list[0]
+    print(result[0]['emotion'])
 
-    emotion = result[0]['dominant_emotion']
-
+    # values = list(result[0]['emotion'].values())
+    # values.sort()
+    # sorted_emo = {values[i]: i for i in values}
+    # emotion_list = sorted_emo.keys()
+    x = result[0]['emotion']
+    sorted_emo = {k: v for k, v in sorted(x.items(), key=lambda item: item[1])}
+    
+    emotion_list = list(sorted_emo.keys())
+    emotion = emotion_list[-1]
+    if emotion_list[-1] == 'disgust' or emotion_list[-1] == 'fear':
+        if emotion_list[-2] == 'fear' or emotion_list[-2] == 'disgust':
+            emotion = emotion_list[-3]
+        else:
+            emotion = emotion_list[-2]
+    # emotion = result[0]['dominant_emotion']
+    # print(emotion)
     txt = str(emotion)
 
     cv2.putText(frame, txt, (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 3)
@@ -237,6 +268,7 @@ def recomm(emotion):
     sad_avg = [0.5, 0.525, 0.55, -7.5, 0.3, 115]
     chill_avg = [0.575, 0.525, 0.425, -8.35, 0.55, 122.5]
     angry_avg = [0.655, 0.78, 0.3, -7.5, 0.475, 130]
+    
 
 
     i = 0
@@ -252,7 +284,7 @@ def recomm(emotion):
         data['sim'] = (np.array(sim) - max(sim)) * (-1)
         # print(data['sim'])
 
-    elif emotion == 'sad':
+    elif emotion == 'sad' or emotion == 'fear':
         for col in filt_col:
             data = data[(data[col] > sad_low[i]) & (data[col] < sad_high[i])]
             i += 1
@@ -268,7 +300,7 @@ def recomm(emotion):
         for col in filt_col:
             data = data[(data[col] > chill_low[i]) & (data[col] < chill_high[i])]
             i += 1
-        
+
         sim = []
         for i in range(len(data)):
             e = data.loc[:, filt_col].iloc[i].values
@@ -276,7 +308,7 @@ def recomm(emotion):
         data['sim'] = (np.array(sim) - max(sim)) * (-1)
         # print(data['sim'])
 
-    elif emotion == 'angry':
+    elif emotion == 'angry' or emotion == 'disgust':
         for col in filt_col:
             data = data[(data[col] > angry_low[i]) & (data[col] < angry_high[i])]
             i += 1
@@ -288,6 +320,7 @@ def recomm(emotion):
         data['sim'] = (np.array(sim) - max(sim)) * (-1)
         # print(data['sim'])
     print(data)
+
 
 
     data_filtered = data.drop(['name', 'popularity', 'date_added', 'release_year', 'type', 'id', 'uri', 'track_href',  'analysis_url', 'artists', 'Unnamed: 0', 'key', 'mode', 'duration_ms', 'time_signature'], axis=1)
