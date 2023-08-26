@@ -122,7 +122,7 @@ def main_app():
 
     # this file contains artists names which will be used for ohe
     global artists_excel
-    artists_excel = pd.read_excel('datasets/artists_names.xlsx')
+    artists_excel = pd.read_excel('C:/Users/Shrey/OneDrive/_My/emotion-based-music-recommendation-system/datasets/artists_names.xlsx')
 
     # creating dummy dataframe for ohe-ing the artists
     zeros = [0] * len(df['name'])
