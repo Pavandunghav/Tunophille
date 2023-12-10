@@ -1,4 +1,4 @@
-# MUSIC-RECOMMENDATION-SYSTEM
+# MUSIC-RECOMMENDATION-SYSTEM (Outdated Design, will update soon)
 
 Getting the song meta-data using a playlist link (*Playlist Link* or *Song ID* would be used), cleaning the data, processing it, adding extra columns, normalising data with *recency factor* and deriving the vector needed to recommend the songs. Comparing the songs using this vector and calculating the recommendation score (or *cosine similarity score*). Sorting songs based on the score in descending order then displaying it on the website along with their thumbnails. If possible, songs would be played on the website itself.
 Also, if song id is used then same procedures needs to be followed.
